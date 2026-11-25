@@ -70,19 +70,22 @@ export function compareRows(a, b) {
  * options.venue: "all" | "home" | "away"; options.half: "ft" | "ht" (таблица по первым таймам).
  * В таблицу попадают все команды сезона, даже без сыгранных матчей.
  */
-export function buildTable(matches, { venue = 'all', half = 'ft', rules = 'epl' } = {}) {
+export function buildTable(matches, { venue = 'all', half = 'ft', rules = 'epl', upToRound = Infinity } = {}) {
   const rows = {}
   const row = (team) => (rows[team] ??= emptyRow(team))
+  const counted = []
   for (const m of matches) {
     row(m.team1)
     row(m.team2)
+    if ((roundNumber(m.round) ?? Infinity) > upToRound) continue
+    counted.push(m)
     const s = scoreOf(m, half)
     if (!s) continue
     if (venue !== 'away') addResult(row(m.team1), s[0], s[1])
     if (venue !== 'home') addResult(row(m.team2), s[1], s[0])
   }
   const list = Object.values(rows)
-  return rules === 'laliga' ? sortLaLiga(list, matches, { venue, half }) : [...list].sort(compareRows)
+  return rules === 'laliga' ? sortLaLiga(list, counted, { venue, half }) : [...list].sort(compareRows)
 }
 
 /** Номер тура из строки "Matchday 12" → 12. Нет числа → null. */
@@ -105,12 +108,12 @@ export function totalRounds(matches) {
   return matches.reduce((max, m) => Math.max(max, roundNumber(m.round) ?? 0), 0)
 }
 
-/** Таблица после N-го тура: только матчи с номером тура ≤ N. */
-export function tableAfterRound(matches, n, options) {
-  return buildTable(
-    matches.filter((m) => (roundNumber(m.round) ?? Infinity) <= n),
-    options,
-  )
+/**
+ * Таблица после N-го тура: учитываются только матчи с номером тура ≤ N,
+ * но в таблице остаются все команды сезона (с нулями, если ещё не играли).
+ */
+export function tableAfterRound(matches, n, options = {}) {
+  return buildTable(matches, { ...options, upToRound: n })
 }
 
 /** Все матчи команды по дате (и времени). */
