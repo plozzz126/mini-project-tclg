@@ -5,7 +5,7 @@
 
 - Студент: Пан Роман Сергеевич
 - Уровень: **продвинутый**
-- Сайт: https://mini-project5-series.vercel.app
+- Сайт: https://mini-project-tclg.vercel.app/mp5/
 
 ## Маршруты
 
@@ -56,4 +56,4 @@ npm test        # vitest: 24 теста
 npm run build
 ```
 
-Подпись «Данные: TVmaze.com» стоит в подвале. [`vercel.json`](vercel.json) переписывает все адреса на `index.html`, поэтому F5 на `/show/169` не даёт 404.
+Подпись «Данные: TVmaze.com» стоит в подвале. [`vercel.json`](../vercel.json) в корне репозитория переписывает все адреса на `index.html`, поэтому F5 на `/show/169` не даёт 404.

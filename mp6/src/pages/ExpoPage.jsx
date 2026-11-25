@@ -15,7 +15,8 @@ export default function ExpoPage() {
   const [dragOver, setDragOver] = useState(null)
   const [slides, setSlides] = useState(false)
 
-  const link = `${window.location.origin}/expo/view${encodeExpo(expo)}`
+  // BASE_URL = "/mp6/" — приложение живёт не в корне сайта
+  const link = `${window.location.origin}${import.meta.env.BASE_URL}expo/view${encodeExpo(expo)}`
 
   async function copyLink() {
     try {

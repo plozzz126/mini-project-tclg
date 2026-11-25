@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Мини-проекты · Frontend MVP Sprint</title>
+    <style>
+      :root { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #1b1b1f; background: #f6f6f8; line-height: 1.45; }
+      @media (prefers-color-scheme: dark) { :root { color: #ececf1; background: #141418; } a.card { background: #1d1d23; border-color: #2e2e36; } }
+      body { margin: 0; }
+      main { max-width: 880px; margin: 0 auto; padding: 2.5rem 1rem; }
+      h1 { margin: 0 0 0.3rem; font-size: 1.8rem; }
+      p.sub { color: #6b6b78; margin: 0 0 2rem; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 1rem; }
+      a.card { display: grid; gap: 0.4rem; padding: 1.2rem; border-radius: 12px; background: #fff; border: 1px solid #e1e1e8; text-decoration: none; color: inherit; }
+      a.card:hover { border-color: #6d3fd6; }
+      .num { font-size: 0.8rem; color: #6b6b78; text-transform: uppercase; letter-spacing: 0.04em; }
+      .icon { font-size: 2rem; }
+      b { font-size: 1.1rem; }
+      small { color: #6b6b78; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Мини-проекты</h1>
+      <p class="sub">Пан Роман Сергеевич · ПМ 2 «Frontend MVP Sprint» · 3 курс</p>
+      <div class="grid">
+        <a class="card" href="/mp4/">
+          <span class="icon">⚽</span><span class="num">Мини-проект № 4</span><b>Своя турнирная таблица</b>
+          <small>openfootball + TheSportsDB</small>
+        </a>
+        <a class="card" href="/mp5/">
+          <span class="icon">📺</span><span class="num">Мини-проект № 5</span><b>Сериальный трекер</b>
+          <small>TVmaze</small>
+        </a>
+        <a class="card" href="/mp6/">
+          <span class="icon">🖼️</span><span class="num">Мини-проект № 6</span><b>Своя выставка</b>
+          <small>Art Institute of Chicago API</small>
+        </a>
+      </div>
+    </main>
+  </body>
+</html>

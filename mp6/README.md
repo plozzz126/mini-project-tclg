@@ -7,7 +7,7 @@
 меняет их порядок и делится выставкой по ссылке. Регистрация не нужна: выставка хранится
 в `localStorage`, а ссылка содержит только название и список id.
 
-- Сайт: https://mini-project-tclg.vercel.app
+- Сайт: https://mini-project-tclg.vercel.app/mp6/
 - Студент: Пан Роман Сергеевич
 - Репозиторий: https://github.com/plozzz126/mini-project-tclg
 - Уровень: **продвинутый**
@@ -101,4 +101,4 @@ npm run build      # сборка в dist/
 ```
 
 Деплой на Vercel: импортировать репозиторий (Framework Preset: Vite).
-[`vercel.json`](vercel.json) отдаёт `index.html` на любой адрес, поэтому `F5` на `/artwork/27992` не даёт 404.
+[`vercel.json`](../vercel.json) в корне репозитория отдаёт `index.html` на любой адрес, поэтому `F5` на `/artwork/27992` не даёт 404.

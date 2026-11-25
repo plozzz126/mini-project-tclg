@@ -6,7 +6,7 @@
 
 - Студент: Пан Роман Сергеевич
 - Уровень: **продвинутый**
-- Сайт: https://mini-project4-table.vercel.app
+- Сайт: https://mini-project-tclg.vercel.app/mp4/
 
 ## Что умеет
 
@@ -63,4 +63,4 @@ npm test        # vitest: 26 тестов
 npm run build
 ```
 
-[`vercel.json`](vercel.json) переписывает все адреса на `index.html`, поэтому F5 на странице клуба не даёт 404.
+[`vercel.json`](../vercel.json) в корне репозитория переписывает все адреса на `index.html`, поэтому F5 на странице клуба не даёт 404.

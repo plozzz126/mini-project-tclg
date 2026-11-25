@@ -1,0 +1,11 @@
+{
+  "framework": null,
+  "installCommand": "echo 'зависимости ставятся в scripts/build.mjs'",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/mp4/:path*", "destination": "/mp4/index.html" },
+    { "source": "/mp5/:path*", "destination": "/mp5/index.html" },
+    { "source": "/mp6/:path*", "destination": "/mp6/index.html" }
+  ]
+}

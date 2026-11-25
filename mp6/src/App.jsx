@@ -26,7 +26,7 @@ function Header() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <ExpoProvider>
         <Header />
         <main className="container">
