@@ -1,16 +1,102 @@
-# React + Vite
+# Своя выставка
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Мини-проект № 6. Виртуальная галерея на открытом API Чикагского института искусств
+([api.artic.edu](https://api.artic.edu/docs/)).
 
-Currently, two official plugins are available:
+Пользователь ищет работы по теме, открывает карточку работы, собирает выставку до 12 работ,
+меняет их порядок и делится выставкой по ссылке. Регистрация не нужна: выставка хранится
+в `localStorage`, а ссылка содержит только название и список id.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Сайт: _вставить ссылку Vercel_
+- Уровень: **продвинутый**
 
-## React Compiler
+## Вариант
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| № | Тема (q) | Цвет | Задача варианта |
+|---|----------|------|-----------------|
+| 1 | `cats` | `red` | Сортировка выставки по году создания (`date_start`), кнопка «Хронологически» |
 
-## Expanding the Oxlint configuration
+Вариант задаётся одной константой `VARIANT` в [`src/config.js`](src/config.js): по номеру
+подставляются тема, цвет и задача. Реализованы все четыре задачи вариантов, на экране видна только своя.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Маршруты
+
+| Адрес | Что там |
+|-------|---------|
+| `/` | Поиск: тема, фильтр по цвету, сетка карточек, страницы до `maxPage` |
+| `/artwork/:id` | Карточка работы, кнопка «В выставку» (неактивна, если в выставке 12 работ) |
+| `/expo` | Моя выставка: название, порядок (перетаскивание и ↑ ↓), «Убрать», «Скопировать ссылку», слайд-шоу |
+| `/expo/view?title=…&ids=…` | Чужая выставка по ссылке, загружается **одним** запросом `/artworks?ids=` |
+| всё остальное | 404 |
+
+## Журнал данных
+
+Что выяснилось при разборе ответов во вкладке Network (запрос `cats`, ответы лежат в
+[`src/lib/fixtures/sample.json`](src/lib/fixtures/sample.json)):
+
+| id | Работа | Особенность | Что сделано в коде |
+|----|--------|-------------|--------------------|
+| 2990 | *Border Fragments* (Nasca) | `image_id: null`, `thumbnail: null`, `color: null` | `imageUrl` → `null`, рисуется заглушка «Нет изображения»; `aspectRatio(null)` → 1; `hueBucket(null)` → `null` |
+| 21177 | *Cat Pawing at Goldfish* (Isoda Koryusai) | картинка есть, но `color: null` | при фильтре по цвету такая работа не попадает в выдачу; код цвета не падает на `null` |
+| 656 | *Lion (One of a Pair, South Pedestal)* | `artist_display` из **трёх** строк: автор, литейная мастерская, город | `artistName` берёт только первую строку |
+
+Ещё наблюдения:
+
+- **Лимит 10 000.** По `cats` найдено 133 375 работ, `total_pages` = 22 230, но запрос
+  `?page=420&limit=24` отвечает `403 Invalid number of results`. Поэтому последняя страница
+  считается через `maxPage` (416 при `limit=24`), а номер страницы из адреса ограничивается тем же числом.
+- **Пакетный запрос не сохраняет порядок.** `/artworks?ids=656,2990,99999999,21177` вернул
+  `656, 21177, 2990`, а несуществующий id молча пропустил. Порядок восстанавливает `orderByIds`,
+  на странице выставки пишется, сколько работ не нашлось.
+- **Поиск нечёткий.** `cats` находит и «Saint **Cat**herine», так что «найдено» сильно больше реальных кошек.
+- **Пропорции.** `thumbnail.width/height` приходят до загрузки картинки: карточке задаётся
+  `aspect-ratio`, и сетка не прыгает. Пока картинка грузится, фоном показывается размытый `thumbnail.lqip`.
+- **Фильтр по цвету идёт на сервере** через `params={"query":{…}}` с диапазонами `color.h` и `color.s`
+  (те же границы, что в `hueBucket`). Поэтому число найденных и `maxPage` верны для отфильтрованной выдачи,
+  а не только для текущей страницы.
+- **Cloudflare.** У автоматизированного (headless) браузера API и IIIF отвечают антибот-страницей
+  без CORS-заголовка. В обычном браузере всё работает.
+
+## Контракт — `src/lib/art.js`
+
+| Функция | Поведение |
+|---------|-----------|
+| `artistName(display)` | первая строка `artist_display`; пусто или `null` → «Неизвестный автор» |
+| `imageUrl(iiifUrl, imageId, width = 843)` | `{iiif_url}/{image_id}/full/{width},/0/default.jpg`; нет `image_id` → `null` |
+| `aspectRatio(thumbnail)` | `width / height`; нет данных → 1 |
+| `hueBucket(color)` | `s < 15` → `gray`; иначе группа по `h` (граница включается в верхнюю группу); нет цвета → `null` |
+| `maxPage(total, limit)` | `min(ceil(total/limit), floor(10000/limit))`; ничего не найдено → 0 |
+| `encodeExpo(expo)` / `decodeExpo(search)` | выставка ↔ `?title=…&ids=1,2,3`; при чтении нечисловые, нулевые и отрицательные id и повторы отбрасываются, не больше 12, пустое название → `DEFAULT_TITLE` |
+| `expoReducer(state, action)` | `add`, `remove`, `moveUp`, `moveDown`, `move`, `rename`, `sortByYear`, `clear`, `load` |
+| `loadExpo` / `saveExpo` | `localStorage`, `JSON.parse` в `try/catch`, мусор → пустая выставка |
+| `orderByIds`, `sortByYear`, `countByDepartment`, `randomPage` | вспомогательные функции и задачи вариантов |
+
+## Слой API — `src/api/artic.js`
+
+- `searchArtworks(q, page, { color, publicDomain, signal })`, `getArtwork(id)`, `getArtworks(ids)`.
+- Запрашиваются только нужные поля (`fields=`).
+- **Кеш:** `Map` «адрес → Promise». Повторный запрос не уходит в сеть, а два одинаковых запроса сливаются в один.
+- **Очередь** ([`src/api/queue.js`](src/api/queue.js)): не больше одного запроса в секунду.
+- `429` → «Слишком много запросов, подождите минуту».
+- **AbortController:** устаревший поиск отменяется (и в сети, и пока ждёт в очереди).
+
+## Уровень «продвинутый»
+
+- размытое превью `thumbnail.lqip`, пока грузится картинка;
+- отметка «✓ Уже в выставке» на карточках поиска;
+- перетаскивание работ мышью (кнопки ↑ ↓ остались для клавиатуры и телефона);
+- слайд-шоу: ← → листают, Esc закрывает, следующая картинка предзагружается;
+- отмена устаревших запросов поиска (`AbortController`);
+- тест очереди с фальшивыми таймерами (`vi.useFakeTimers`) — [`src/api/queue.test.js`](src/api/queue.test.js).
+
+## Как запустить
+
+```bash
+npm install
+npm run dev        # http://localhost:5173
+npm test           # vitest: 36 тестов
+npm run build      # сборка в dist/
+```
+
+Деплой на Vercel: импортировать репозиторий (Framework Preset: Vite).
+[`vercel.json`](vercel.json) отдаёт `index.html` на любой адрес, поэтому `F5` на `/artwork/27992` не даёт 404.
