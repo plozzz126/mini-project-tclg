@@ -1,16 +1,66 @@
-# React + Vite
+# Своя турнирная таблица
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Мини-проект № 4. Таблицы футбольных лиг Европы, посчитанные из списка матчей
+([openfootball](https://github.com/openfootball/football.json)), плюс эмблемы, стадионы и игроки клубов
+([TheSportsDB](https://www.thesportsdb.com)).
 
-Currently, two official plugins are available:
+- Студент: Пан Роман Сергеевич
+- Уровень: **продвинутый**
+- Сайт: https://mini-project4-table.vercel.app
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Что умеет
 
-## React Compiler
+| Адрес | Что там |
+|-------|---------|
+| `/` | 5 лиг (АПЛ, Ла Лига, Бундеслига, Серия A, Лига 1) и выбор сезона |
+| `/league/:code/:season` | Таблица: место, эмблема, И, В, Н, П, мячи, ±, очки, форма. Ползунок «после тура N», «Все / Дома / В гостях», таблица по первым таймам, правила при равенстве очков (АПЛ или Ла Лига) |
+| `/league/:code/:season/team/:team` | Клуб: эмблема, стадион и вместимость, год основания, описание, игроки (TheSportsDB); место, итоги дома и в гостях, самая крупная победа, график места по турам, все матчи; «В избранное» |
+| `/league/:code/:season/compare?a=…&b=…` | Сравнение двух клубов, личные встречи и оба графика |
+| `/favorites` | Избранные клубы |
+| `/predictions` | Конкурс прогнозов на текущий сезон (2026/27): точный счёт — 3 очка, исход — 1 |
+| всё остальное | 404 |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Чистые функции — `src/lib/table.js`
 
-## Expanding the Oxlint configuration
+`matchResult`, `buildTable`, `compareRows`, `roundNumber`, `tableAfterRound`, `teamForm`, `teamMatches`,
+`isFresh`, а также `scoreOf`, `biggestWin`, `positionsByRound`, `sortLaLiga`, `predictionPoints`, `predictionSummary`.
+`teamIdByName` лежит в `src/data/teams-map.js`, избранное и прогнозы обрабатывает `appReducer` в `src/lib/store.js`.
+В этих файлах нет `fetch`, state и JSX.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+- **Порядок АПЛ:** очки → разница мячей → забитые → название (`localeCompare`).
+- **Порядок Ла Лиги** (`sortLaLiga`): команды с равными очками сравниваются по мини-таблице личных встреч (очки, потом разница), затем по общей разнице, забитым и названию.
+- **Таблица после тура N:** считаются только матчи с номером тура ≤ N, но в таблице остаются все команды сезона.
+- **Форма:** последние 5 сыгранных матчей по дате, от старых к новым (`"WWDLW"`).
+
+## Данные и API
+
+- `src/api/football.js` — функция `getSeason(code, season)`. Загруженный сезон хранится в `Map` «адрес → Promise» и повторно не скачивается.
+- `src/api/sportsdb.js` — функции `getTeamInfo(id)` и `getPlayers(id)`. Ключ `123` хранится в одной константе `API_KEY`.
+  - Ответ сохраняется в `localStorage` вместе с `savedAt` и 24 часа берётся оттуда. Повторное открытие клуба не отправляет запросов (проверено во вкладке Network: после F5 у Арсенала 0 запросов).
+  - Запросы идут через очередь, не чаще одного раза в 2,1 с: так 20 эмблем таблицы не упираются в лимит 30 запросов в минуту. Запросы страницы клуба встают в начало очереди.
+  - При ответе 429 или ошибке сети показываются сохранённые данные с пометкой. Если сохранённых нет — сообщение «Попробуйте через минуту».
+- `src/data/teams-map.js` — id 24 клубов АПЛ: 20 из сезона 2024-25 и новички сезонов 2025-27. Если клуба нет в файле, страница работает без данных API.
+
+## Проверка (шаг 8)
+
+- **АПЛ 2024-25:** 380 матчей, чемпион Liverpool FC с 84 очками, последнее место у Southampton FC с 12 очками. Это закреплено тестом на полном файле сезона `src/lib/fixtures/en1-2024-25.json`.
+- **Arsenal FC:** эмблема, Emirates Stadium, основан в 1892 году.
+
+## Журнал данных
+
+- **Счёт бывает массивом.** В сезоне 2026-27 у пяти матчей вместо `{ "ft": [0, 0], "ht": [0, 0] }` записано просто `"score": [0, 0]`. Это всегда 0:0 без счёта первого тайма. Функция `scoreOf` понимает оба вида, а в таблице по таймам такие матчи пропускаются.
+- **Несыгранные матчи** вообще не содержат поля `score`.
+- **Технические результаты.** В Бундеслиге 2024-25 у матча Union Berlin — Bochum есть `"status": "awarded"` (техническое поражение 0:2). Он учитывается как обычный результат.
+- **Лимит TheSportsDB.** Поиск клуба по названию на бесплатном ключе не работает, а `search_all_teams` отдаёт только 10 клубов. Поэтому все 20 id взяты из матчей последнего тура (`eventsround.php?id=4328&r=38&s=2024-2025`) и проверены через `lookupteam.php`. После 5 быстрых запросов подряд API начинает отвечать ошибкой, отсюда очередь с паузой.
+- **Состав в TheSportsDB неточный.** В списке «игроков» Арсенала есть тренер (Albert Stuivenberg, Assistant Coach) и игрок другого клуба (Ezri Konsa). Данные показываются как есть, с позицией.
+
+## Как запустить
+
+```bash
+npm install
+npm run dev     # http://localhost:5173
+npm test        # vitest: 26 тестов
+npm run build
+```
+
+[`vercel.json`](vercel.json) переписывает все адреса на `index.html`, поэтому F5 на странице клуба не даёт 404.
