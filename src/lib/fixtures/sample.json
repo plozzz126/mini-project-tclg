@@ -1,0 +1,90 @@
+{
+  "pagination": {
+    "total": 133375,
+    "limit": 100,
+    "offset": 0,
+    "total_pages": 1334,
+    "current_page": 1
+  },
+  "data": [
+    {
+      "id": 656,
+      "title": "Lion (One of a Pair, South Pedestal)",
+      "thumbnail": {
+        "lqip": "data:image/gif;base64,R0lGODlhCAAFAPUAADY5NTQ/PkI4IT1COjtEQkNHQk5YWFteWWtkTmtoX291WnJ1WX1xZ355cYZ3Zn+Cf42KaoWEeJOKfpeWcoCEgI2OiJaQgp+XgpWRiJWTjKKbjqqhkK+olbGml7q0q7e2sMG5rcbAs8fBuMrGv8/HvsnJud3d3evr7gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAAAAAAALAAAAAAIAAUAAAYlQJPnIwKRQpPTyPDgQDaC0gUQIAwsDISjcUgUMB2JpkLJRBSLIAA7",
+        "width": 8430,
+        "height": 5620,
+        "alt_text": "A bronze lion, deep green and muscular, looks out in the distance from its pedestal in front of the Art Institute of Chicago."
+      },
+      "date_start": 1893,
+      "date_display": "1893",
+      "artist_display": "Edward Kemeys (American, 1843–1907)\nAmerican Bronze Founding Company (American, founded 1886)\nChicago",
+      "color": {
+        "h": 49,
+        "l": 52,
+        "s": 64,
+        "percentage": 4.432567976596041e-05,
+        "population": 21
+      },
+      "department_title": "Arts of the Americas",
+      "image_id": "6b1edb9c-0f3f-0ee3-47c7-ca25c39ee360",
+      "is_public_domain": false
+    },
+    {
+      "id": 45259,
+      "title": "Nude with Cats",
+      "thumbnail": {
+        "lqip": "data:image/gif;base64,R0lGODlhBAAFAPQAAFpcVVthVGBgSndvSW5hUWtlWHJvVWxpYHJ1bYd+an2Feo6Da4iGcZmTfqWdi6SgkK+rnLS7q7u4qb68rAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAAAAAAALAAAAAAEAAUAAAURoBIIQ8QQBlIsDXAkzjNJUAgAOw==",
+        "width": 4603,
+        "height": 5060,
+        "alt_text": "A work made of oil on cardboard."
+      },
+      "date_start": 1901,
+      "date_display": "1901",
+      "artist_display": "Pablo Picasso\nSpanish, active France, 1881-1973",
+      "color": {
+        "h": 44,
+        "l": 39,
+        "s": 48,
+        "percentage": 0.009597407932065706,
+        "population": 75
+      },
+      "department_title": "Modern Art",
+      "image_id": "96c25381-bdfb-81c4-de91-1186aa38ace4",
+      "is_public_domain": false
+    },
+    {
+      "id": 2990,
+      "title": "Border Fragments",
+      "date_start": 100,
+      "date_display": "100 BCE–200 CE",
+      "artist_display": "Nasca\nSouth coast, Peru",
+      "is_public_domain": true,
+      "department_title": "Textiles",
+      "thumbnail": null,
+      "image_id": null,
+      "color": null
+    },
+    {
+      "id": 21177,
+      "title": "Cat Pawing at Goldfish",
+      "thumbnail": {
+        "lqip": "data:image/gif;base64,R0lGODlhBAAFAPQAAHdnU4RxWpJ9XKqFZ6yFZqyPZKSNa6KJbqWNba+PcqqQdbOdfMGTcbKegsGri8StjsmwjcuxkNK7nNa+nQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAAAAAAAIf8LSW1hZ2VNYWdpY2sOZ2FtbWE9MC40NTQ1NDUALAAAAAAEAAUAAAURoLM80kBEE5M0EKIchREAQggAOw==",
+        "width": 6791,
+        "height": 9108,
+        "alt_text": "A work made of color woodblock print; chuban."
+      },
+      "date_start": 1770,
+      "date_display": "c. early 1770s",
+      "artist_display": "Isoda Koryusai\nJapanese, 1735-1790",
+      "is_public_domain": true,
+      "color": null,
+      "department_title": "Arts of Asia",
+      "image_id": "7a97b9de-bf72-1a05-40b9-1f604698e493"
+    }
+  ],
+  "config": {
+    "iiif_url": "https://www.artic.edu/iiif/2",
+    "website_url": "https://www.artic.edu"
+  }
+}
