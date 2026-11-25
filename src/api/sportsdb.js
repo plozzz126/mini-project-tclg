@@ -34,11 +34,46 @@ function writeCache(key, data) {
 
 const inflight = new Map()
 
+// Очередь: запросы к TheSportsDB идут по одному, не чаще раза в 2,1 с —
+// так 20 эмблем таблицы не упрутся в лимит 30 запросов в минуту.
+// Запросы страницы клуба (urgent) встают в начало очереди, эмблемы — в конец.
+const GAP_MS = 2100
+const queue = []
+let busy = false
+let lastAt = 0
+
+function pump() {
+  if (busy || !queue.length) return
+  const wait = lastAt + GAP_MS - Date.now()
+  if (wait > 0) {
+    setTimeout(pump, wait)
+    return
+  }
+  busy = true
+  const job = queue.shift()
+  lastAt = Date.now()
+  fetch(job.url)
+    .then(job.resolve, job.reject)
+    .finally(() => {
+      busy = false
+      pump()
+    })
+}
+
+function throttled(url, urgent) {
+  return new Promise((resolve, reject) => {
+    const job = { url, resolve, reject }
+    if (urgent) queue.unshift(job)
+    else queue.push(job)
+    pump()
+  })
+}
+
 /**
  * Свежий кеш → он; иначе запрос. При 429 или ошибке сети отдаём старый кеш
  * (с пометкой stale), а если его нет — «Попробуйте через минуту».
  */
-async function cached(key, path, pick) {
+async function cached(key, path, pick, urgent = true) {
   const entry = readCache(key)
   if (entry && isFresh(entry.savedAt)) return { data: entry.data, stale: false }
   if (inflight.has(key)) return inflight.get(key)
@@ -46,7 +81,7 @@ async function cached(key, path, pick) {
   const p = (async () => {
     let res
     try {
-      res = await fetch(`${BASE}/${path}`)
+      res = await throttled(`${BASE}/${path}`, urgent)
     } catch {
       if (entry) return { data: entry.data, stale: true }
       throw new ApiError('Нет связи с TheSportsDB. Попробуйте через минуту.', 0)
@@ -72,8 +107,13 @@ async function cached(key, path, pick) {
   }
 }
 
+/** Уменьшенная эмблема: /small (250 px) или /tiny (50 px). */
+export function badgeUrl(strBadge, size = 'small') {
+  return strBadge ? `${strBadge}/${size}` : null
+}
+
 /** Клуб: { strTeam, strBadge, intFormedYear, strStadium, intStadiumCapacity, strDescriptionEN, … } или null. */
-export function getTeamInfo(id) {
+export function getTeamInfo(id, { urgent = true } = {}) {
   return cached(`team:${id}`, `lookupteam.php?id=${id}`, (json) => {
     const t = json?.teams?.[0]
     if (!t) return null
@@ -88,7 +128,7 @@ export function getTeamInfo(id) {
       strDescriptionEN: t.strDescriptionEN,
       strWebsite: t.strWebsite,
     }
-  })
+  }, urgent)
 }
 
 /** Игроки: [{ strPlayer, strPosition, strNationality, strThumb }] (на бесплатном ключе до 10). */
